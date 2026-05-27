@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["member", "admin"] },
+        "email": { "type": "string" },
+        "weight": { "type": "number" },
+        "goal": { "type": "string", "enum": ["maintain", "cut", "bulk"] },
+        "targetCalories": { "type": "number" },
+        "tickets": { "type": "number" },
+        "contractPlan": { "type": "string" },
+        "gender": { "type": "string", "enum": ["male", "female"] },
+        "height": { "type": "number" },
+        "age": { "type": "number" },
+        "activityLevel": { "type": "string", "enum": ["low", "medium", "high"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "role", "email"]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "description": "A training reservation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "status": { "type": "string", "enum": ["upcoming", "completed", "cancelled"] },
+        "memo": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "date", "time", "status"]
+    },
+    "MealRecord": {
+      "title": "Meal Record",
+      "description": "User's meal entry",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "foodName": { "type": "string" },
+        "amount": { "type": "number" },
+        "calories": { "type": "number" },
+        "protein": { "type": "number" },
+        "fat": { "type": "number" },
+        "carbs": { "type": "number" },
+        "type": { "type": "string", "enum": ["breakfast", "lunch", "dinner", "snack"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "date", "foodName", "amount", "calories", "protein", "fat", "carbs", "type"]
+    },
+    "WeightRecord": {
+      "title": "Weight Record",
+      "description": "User's body measurement record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "weight": { "type": "number" },
+        "bodyFatPercentage": { "type": "number" },
+        "subcutaneousFatPercentage": { "type": "number" },
+        "skeletalMuscle": { "type": "number" },
+        "visceralFatLevel": { "type": "number" },
+        "bodyAge": { "type": "number" },
+        "basalMetabolicRate": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "date", "weight"]
+    },
+    "TrainingRecord": {
+      "title": "Training Record",
+      "description": "User's training session record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "menu": { "type": "string" },
+        "memo": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "date", "menu"]
+    },
+    "CustomFood": {
+      "title": "Custom Food",
+      "description": "User defined food item",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "protein": { "type": "number" },
+        "fat": { "type": "number" },
+        "carbs": { "type": "number" },
+        "calories": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "name", "protein", "fat", "carbs", "calories"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Users collection"
+    },
+    "/reservations/{reservationId}": {
+      "schema": { "$ref": "#/entities/Reservation" },
+      "description": "Reservations collection"
+    },
+    "/meals/{mealId}": {
+      "schema": { "$ref": "#/entities/MealRecord" },
+      "description": "Meals collection"
+    },
+    "/weights/{weightId}": {
+      "schema": { "$ref": "#/entities/WeightRecord" },
+      "description": "Weights collection"
+    },
+    "/trainings/{trainingId}": {
+      "schema": { "$ref": "#/entities/TrainingRecord" },
+      "description": "Trainings collection"
+    },
+    "/customFoods/{customFoodId}": {
+       "schema": { "$ref": "#/entities/CustomFood" },
+       "description": "Custom foods collection"
+    }
+  }
+}

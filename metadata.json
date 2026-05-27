@@ -1,0 +1,6 @@
+{
+  "name": "GOAT Personal Gym",
+  "description": "Personal gym management app for members and admins.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

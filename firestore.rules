@@ -1,0 +1,189 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isAdmin() {
+      // For this sample app, we will assume admin if they exist in users with role admin.
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'role', 'email'])
+          && data.name is string && data.name.size() <= 100
+          && data.role in ['member', 'admin']
+          && data.email is string && data.email.size() <= 200
+          && (!('createdAt' in data) || data.createdAt is timestamp || data.createdAt is string)
+          && (!('updatedAt' in data) || data.updatedAt is timestamp || data.updatedAt is string)
+          && (!('weight' in data) || data.weight is number)
+          && (!('goal' in data) || data.goal in ['maintain', 'cut', 'bulk'])
+          && (!('targetCalories' in data) || data.targetCalories is number)
+          && (!('tickets' in data) || data.tickets is number)
+          && (!('contractPlan' in data) || data.contractPlan is string)
+          && (!('gender' in data) || data.gender in ['male', 'female'])
+          && (!('height' in data) || data.height is number)
+          && (!('age' in data) || data.age is number)
+          && (!('activityLevel' in data) || data.activityLevel in ['low', 'medium', 'high'])
+          && (!('memberId' in data) || data.memberId is string)
+          && (!('rawPassword' in data) || data.rawPassword is string);
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && isValidId(userId) && isValidUser(incoming()) && (
+                      isAdmin() || 
+                      (request.auth.uid == userId && incoming().role == 'member') ||
+                      (request.auth.uid == userId && incoming().role == 'admin' && incoming().email == 'b2181199@gmail.com')
+                    );
+      allow update: if isSignedIn() && isValidId(userId) && isValidUser(incoming()) && (
+                      isAdmin() ||
+                      (request.auth.uid == userId && existing().email == 'b2181199@gmail.com' && incoming().role == 'admin' && incoming().email == 'b2181199@gmail.com') ||
+                      (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'weight', 'goal', 'targetCalories', 'gender', 'height', 'age', 'activityLevel', 'updatedAt', 'rawPassword']) && incoming().role == existing().role && incoming().email == existing().email)
+                    );
+    }
+
+    function isValidReservation(data) {
+      return data.keys().hasAll(['userId', 'date', 'time', 'status'])
+          && data.userId is string && data.userId.size() <= 128
+          && data.date is string && data.date.size() <= 50
+          && data.time is string && data.time.size() <= 50
+          && data.status in ['upcoming', 'completed', 'cancelled']
+          && (!('memo' in data) || (data.memo is string && data.memo.size() <= 1000))
+          && (!('createdAt' in data) || data.createdAt is timestamp || data.createdAt is string)
+          && (!('updatedAt' in data) || data.updatedAt is timestamp || data.updatedAt is string);
+    }
+
+    match /reservations/{reservationId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(reservationId)
+                    && isValidReservation(incoming())
+                    && (incoming().userId == request.auth.uid || isAdmin())
+                    && exists(/databases/$(database)/documents/users/$(incoming().userId));
+      allow update: if isSignedIn() && isValidId(reservationId) && isValidReservation(incoming()) && (
+                      isAdmin() ||
+                      (request.auth.uid == existing().userId && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'memo', 'updatedAt']) && incoming().userId == existing().userId)
+                    );
+      allow delete: if isAdmin();
+    }
+
+    function isValidMealRecord(data) {
+      return data.keys().hasAll(['userId', 'date', 'foodName', 'amount', 'calories', 'protein', 'fat', 'carbs', 'type'])
+          && data.userId is string && data.userId.size() <= 128
+          && data.date is string && data.date.size() <= 50
+          && data.foodName is string && data.foodName.size() <= 200
+          && data.amount is number
+          && data.calories is number
+          && data.protein is number
+          && data.fat is number
+          && data.carbs is number
+          && data.type in ['breakfast', 'lunch', 'dinner', 'snack']
+          && (!('createdAt' in data) || data.createdAt is timestamp || data.createdAt is string)
+          && (!('updatedAt' in data) || data.updatedAt is timestamp || data.updatedAt is string);
+    }
+
+    match /meals/{mealId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(mealId)
+                    && isValidMealRecord(incoming())
+                    && (incoming().userId == request.auth.uid || isAdmin())
+                    && exists(/databases/$(database)/documents/users/$(incoming().userId));
+      allow update: if isSignedIn() && isValidId(mealId) && isValidMealRecord(incoming()) && (
+                      isAdmin() ||
+                      (request.auth.uid == existing().userId && incoming().userId == existing().userId)
+                    );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    function isValidWeightRecord(data) {
+      return data.keys().hasAll(['userId', 'date', 'weight'])
+          && data.userId is string && data.userId.size() <= 128
+          && data.date is string && data.date.size() <= 50
+          && data.weight is number
+          && (!('bodyFatPercentage' in data) || data.bodyFatPercentage is number)
+          && (!('subcutaneousFatPercentage' in data) || data.subcutaneousFatPercentage is number)
+          && (!('skeletalMuscle' in data) || data.skeletalMuscle is number)
+          && (!('visceralFatLevel' in data) || data.visceralFatLevel is number)
+          && (!('bodyAge' in data) || data.bodyAge is number)
+          && (!('basalMetabolicRate' in data) || data.basalMetabolicRate is number)
+          && (!('createdAt' in data) || data.createdAt is timestamp || data.createdAt is string)
+          && (!('updatedAt' in data) || data.updatedAt is timestamp || data.updatedAt is string);
+    }
+
+    match /weights/{weightId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(weightId)
+                    && isValidWeightRecord(incoming())
+                    && (incoming().userId == request.auth.uid || isAdmin())
+                    && exists(/databases/$(database)/documents/users/$(incoming().userId));
+      allow update: if isSignedIn() && isValidId(weightId) && isValidWeightRecord(incoming()) && (
+                      isAdmin() ||
+                      (request.auth.uid == existing().userId && incoming().userId == existing().userId)
+                    );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    function isValidTrainingRecord(data) {
+       return data.keys().hasAll(['userId', 'date', 'menu'])
+          && data.userId is string && data.userId.size() <= 128
+          && data.date is string && data.date.size() <= 50
+          && data.menu is string && data.menu.size() <= 5000
+          && (!('memo' in data) || (data.memo is string && data.memo.size() <= 1000))
+          && (!('createdAt' in data) || data.createdAt is timestamp || data.createdAt is string)
+          && (!('updatedAt' in data) || data.updatedAt is timestamp || data.updatedAt is string);
+    }
+
+    match /trainings/{trainingId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(trainingId)
+                    && isValidTrainingRecord(incoming())
+                    && (incoming().userId == request.auth.uid || isAdmin())
+                    && exists(/databases/$(database)/documents/users/$(incoming().userId));
+      allow update: if isSignedIn() && isValidId(trainingId) && isValidTrainingRecord(incoming()) && (
+                      isAdmin() ||
+                      (request.auth.uid == existing().userId && incoming().userId == existing().userId)
+                    );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    function isValidCustomFood(data) {
+       return data.keys().hasAll(['userId', 'name', 'protein', 'fat', 'carbs', 'calories'])
+          && data.userId is string && data.userId.size() <= 128
+          && data.name is string && data.name.size() <= 200
+          && data.protein is number
+          && data.fat is number
+          && data.carbs is number
+          && data.calories is number
+          && (!('createdAt' in data) || data.createdAt is timestamp || data.createdAt is string)
+          && (!('updatedAt' in data) || data.updatedAt is timestamp || data.updatedAt is string);
+    }
+
+    match /customFoods/{customFoodId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(customFoodId)
+                    && isValidCustomFood(incoming())
+                    && (incoming().userId == request.auth.uid || isAdmin())
+                    && exists(/databases/$(database)/documents/users/$(incoming().userId));
+      allow update: if isSignedIn() && isValidId(customFoodId) && isValidCustomFood(incoming()) && (
+                      isAdmin() ||
+                      (request.auth.uid == existing().userId && incoming().userId == existing().userId)
+                    );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+  }
+}
