@@ -9,6 +9,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
   const [tickets, setTickets] = useState(member.tickets || 0);
   const [contractPlan, setContractPlan] = useState(member.contractPlan || '');
   const [editMemberId, setEditMemberId] = useState(member.memberId || '');
+  const [name, setName] = useState(member.name || '');
   const [activeTab, setActiveTab] = useState<'profile' | 'body' | 'memo'>('profile');
   const [newTraining, setNewTraining] = useState('');
 
@@ -29,7 +30,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
   const memberBodies = weights.filter(w => w.userId === member.id).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleSaveProfile = () => {
-    updateUserAdmin(member.id, { contractPlan, memberId: editMemberId, tickets });
+    updateUserAdmin(member.id, { contractPlan, memberId: editMemberId, tickets, name });
     onClose();
   };
 
@@ -101,9 +102,22 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
             <div className="space-y-6 max-w-2xl">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">ログインID</label>
-                  <div className="text-sm border border-gray-200 bg-gray-50 p-3 rounded-md text-gray-700">{member.email.replace('@goat-hp.local', '')}</div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">お名前</label>
+                  <input 
+                    type="text" 
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="例: 山田太郎"
+                    className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
+                  />
                 </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">ログインID</label>
+                  <div className="text-sm border border-gray-200 bg-gray-50 p-2.5 rounded-md text-gray-700">{member.email.replace('@goat-hp.local', '')}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-gray-500 mb-1 block">会員番号</label>
                   <input 
@@ -114,9 +128,6 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                     className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm font-mono"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-gray-500 mb-1 block">契約プラン</label>
                   <input 
@@ -127,6 +138,9 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                     className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-gray-500 mb-1 block">残り回数 (チケット)</label>
                   <input 

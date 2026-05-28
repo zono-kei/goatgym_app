@@ -13,6 +13,7 @@ export default function MemberList() {
   const [selectedMember, setSelectedMember] = useState<User | null>(null);
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteConfirmMemberId, setDeleteConfirmMemberId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newMemberId, setNewMemberId] = useState('');
@@ -49,10 +50,15 @@ export default function MemberList() {
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if(confirm('本当に削除しますか？この操作は取り消せません。')) {
-      deleteUser(id);
+    setDeleteConfirmMemberId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteConfirmMemberId) {
+      await deleteUser(deleteConfirmMemberId);
+      setDeleteConfirmMemberId(null);
     }
   };
 
@@ -101,7 +107,7 @@ export default function MemberList() {
                   <td className="px-6 py-4 text-gray-500 font-mono text-xs">{member.rawPassword || '-'}</td>
                   <td className="px-6 py-4"><span className="text-gray-900 font-bold">{member.tickets || 0}</span> 回</td>
                   <td className="px-6 py-4 text-right flex items-center justify-end space-x-1">
-                    <Button variant="ghost" size="icon" className="text-rose-500 opacity-50 hover:opacity-100 hover:bg-rose-50" onClick={(e) => handleDelete(e, member.id)}>
+                    <Button variant="ghost" size="icon" className="text-rose-500 opacity-50 hover:opacity-100 hover:bg-rose-50" onClick={(e) => handleDeleteClick(e, member.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="text-gray-400 group-hover:text-gray-900">
@@ -155,6 +161,24 @@ export default function MemberList() {
                  <Button className="w-full" onClick={handleAddMember} disabled={!newName || !newEmail || newPassword.length < 6 || isCreating}>
                    {isCreating ? '追加中...' : '追加'}
                  </Button>
+               </div>
+             </CardContent>
+           </Card>
+        </div>
+      )}
+      {/* Delete Confirm Modal */}
+      {deleteConfirmMemberId && (
+        <div className="fixed inset-0 z-[60] bg-black/60 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+           <Card className="w-full max-w-sm shadow-xl">
+             <CardHeader className="border-b border-gray-100 flex flex-row items-center justify-between pb-4">
+               <CardTitle className="text-rose-600">お名前と全データの削除</CardTitle>
+             </CardHeader>
+             <CardContent className="pt-6 space-y-4">
+               <p className="text-sm text-gray-700 font-medium">本当に削除しますか？</p>
+               <p className="text-xs text-gray-500">この操作は取り消せません。会員のプロフィール情報、予約、体重記録、食事記録など関連データもすべて削除されます。</p>
+               <div className="pt-4 flex space-x-2">
+                 <Button variant="outline" className="w-full" onClick={() => setDeleteConfirmMemberId(null)}>キャンセル</Button>
+                 <Button variant="destructive" className="w-full bg-rose-600 hover:bg-rose-700 text-white" onClick={confirmDelete}>削除する</Button>
                </div>
              </CardContent>
            </Card>

@@ -3,7 +3,7 @@ import { User, Reservation, MealRecord, WeightRecord, TrainingRecord, Food } fro
 // import secondaryAuth from firebase
 import { db, auth, secondaryAuth, handleFirestoreError } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updatePassword } from 'firebase/auth';
-import { collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch } from 'firebase/firestore';
 
 interface AppState {
   currentUser: User | null;
@@ -187,7 +187,24 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   };
 
   const deleteUser = async (id: string) => {
+    // 🔥 Firebase Authentication上のユーザー削除はAdmin SDKが必要なため、
+    // まずFirestoreの関連データをすべて削除します。
     await deleteDoc(doc(db, 'users', id));
+
+    const collectionsToDelete = ['meals', 'weights', 'trainings', 'reservations'];
+    
+    for (const coll of collectionsToDelete) {
+      const q = query(collection(db, coll), where('userId', '==', id));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const batch = writeBatch(db);
+        querySnapshot.forEach((docSnap) => {
+          batch.delete(docSnap.ref);
+        });
+        await batch.commit();
+      }
+    }
   };
 
   const addReservation = async (res: Reservation) => {
