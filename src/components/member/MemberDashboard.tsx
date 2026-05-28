@@ -3,7 +3,7 @@ import { useAppStore } from '../../store/useStore';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { TrendingDown } from 'lucide-react';
-import goatLogo from '../../assets/images/goat_logo_1779718162447.png';
+import goatLogo from '../ui/goatlogo.png';
 
 type ChartType = 'weight' | 'bodyFatPercentage' | 'subcutaneousFatPercentage' | 'skeletalMuscle' | 'basalMetabolicRate';
 

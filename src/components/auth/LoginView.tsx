@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import goatLogo from '../../assets/images/goat_logo_1779718162447.png';
+import goatLogo from '../ui/goatlogo.png';
 
 export default function LoginView() {
   const { login, loginWithEmail, resetPassword } = useAppStore();

@@ -3,7 +3,7 @@ import { Home, Calendar, Utensils, Settings, Bell } from 'lucide-react';
 import MemberDashboard from './MemberDashboard';
 import MealManagementView from './MealManagementView';
 import { useAppStore } from '../../store/useStore';
-import goatLogo from '../../assets/images/goat_logo_1779718162447.png';
+import goatLogo from '../ui/goatlogo.png';
 
 type Tab = 'home' | 'meal';
 

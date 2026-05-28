@@ -3,7 +3,7 @@ import { useAppStore } from '../../store/useStore';
 import { Users, Calendar as CalendarIcon, LogOut, Settings, ClipboardList } from 'lucide-react';
 import MemberList from './MemberList';
 import AdminDashboardView from './AdminDashboardView';
-import goatLogo from '../../assets/images/goat_logo_1779718162447.png';
+import goatLogo from '../ui/goatlogo.png';
 
 type AdminTab = 'dashboard' | 'members';
 
