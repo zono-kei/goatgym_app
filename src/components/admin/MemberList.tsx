@@ -30,8 +30,10 @@ export default function MemberList() {
     
     try {
       const formattedEmail = newEmail.includes('@') ? newEmail : `${newEmail}@goat-hp.local`;
+      const baseLoginId = newEmail.split('@')[0];
       const newUser: Omit<User, 'id'> = {
         name: newName,
+        loginId: baseLoginId,
         memberId: newMemberId,
         email: formattedEmail,
         role: 'member',
@@ -103,7 +105,7 @@ export default function MemberList() {
                   <td className="px-6 py-4 font-medium text-gray-500 font-mono">{member.memberId || '-'}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{member.name}</td>
                   <td className="px-6 py-4 text-gray-500">{member.contractPlan || '未設定'}</td>
-                  <td className="px-6 py-4 text-gray-500">{member.email.replace('@goat-hp.local', '')}</td>
+                  <td className="px-6 py-4 text-gray-500">{member.loginId || member.email.replace(/(_\d+)?@goat-hp\.local/, '').replace('@goat-hp.local', '')}</td>
                   <td className="px-6 py-4 text-gray-500 font-mono text-xs">{member.rawPassword || '-'}</td>
                   <td className="px-6 py-4"><span className="text-gray-900 font-bold">{member.tickets || 0}</span> 回</td>
                   <td className="px-6 py-4 text-right flex items-center justify-end space-x-1">

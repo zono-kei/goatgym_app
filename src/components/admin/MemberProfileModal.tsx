@@ -113,7 +113,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                 </div>
                 <div>
                   <label className="text-xs font-medium text-gray-500 mb-1 block">ログインID</label>
-                  <div className="text-sm border border-gray-200 bg-gray-50 p-2.5 rounded-md text-gray-700">{member.email.replace('@goat-hp.local', '')}</div>
+                  <div className="text-sm border border-gray-200 bg-gray-50 p-2.5 rounded-md text-gray-700">{member.loginId || member.email.replace(/(_\d+)?@goat-hp\.local/, '').replace('@goat-hp.local', '')}</div>
                 </div>
               </div>
 

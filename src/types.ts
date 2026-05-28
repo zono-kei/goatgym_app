@@ -6,6 +6,7 @@ export type ActivityLevel = 'low' | 'medium' | 'high';
 
 export interface User {
   id: string;
+  loginId?: string; // 表示用ログインID
   memberId?: string; // 会員番号
   name: string;
   role: Role;
