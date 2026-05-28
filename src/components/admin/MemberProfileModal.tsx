@@ -29,7 +29,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
   const memberBodies = weights.filter(w => w.userId === member.id).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleSaveProfile = () => {
-    updateUserAdmin(member.id, { contractPlan, memberId: editMemberId });
+    updateUserAdmin(member.id, { contractPlan, memberId: editMemberId, tickets });
     onClose();
   };
 
@@ -125,6 +125,15 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                     onChange={e => setContractPlan(e.target.value)}
                     placeholder="例: スタンダード月4プラン"
                     className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">残り回数 (チケット)</label>
+                  <input 
+                    type="number" 
+                    value={tickets}
+                    onChange={e => setTickets(Number(e.target.value))}
+                    className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm font-mono"
                   />
                 </div>
               </div>

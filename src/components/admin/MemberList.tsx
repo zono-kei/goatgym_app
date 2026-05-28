@@ -112,7 +112,7 @@ export default function MemberList() {
               ))}
               {filteredMembers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">会員が見つかりません。</td>
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">会員が見つかりません。</td>
                 </tr>
               )}
             </tbody>
