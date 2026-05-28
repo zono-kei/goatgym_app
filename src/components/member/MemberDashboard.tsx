@@ -255,6 +255,69 @@ export default function MemberDashboard() {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Physical Notes */}
+      {(currentUser?.physicalNotes?.posture ||
+        currentUser?.physicalNotes?.tightMuscles ||
+        currentUser?.physicalNotes?.weakMuscles) && (
+        <Card>
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-sm font-bold text-gray-900 border-b pb-2">
+              姿勢・身体的特徴
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-2 space-y-4">
+            {currentUser?.physicalNotes?.posture && (
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm">
+                <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                  <span className="w-2 h-2 rounded-full bg-gray-500 mr-2"></span>
+                  姿勢の特徴
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {currentUser.physicalNotes.posture.split(/[,、・\n]/).filter(Boolean).map((text, i) => (
+                    <span key={i} className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-full shadow-sm">
+                      {text.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {currentUser?.physicalNotes?.tightMuscles && (
+                <div className="bg-rose-50 p-4 rounded-xl border border-rose-100 shadow-sm">
+                  <h4 className="text-sm font-bold text-rose-800 mb-3 flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 mr-2"></span>
+                    硬くなっている筋肉
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {currentUser.physicalNotes.tightMuscles.split(/[,、・\n]/).filter(Boolean).map((text, i) => (
+                      <span key={i} className="px-3 py-1.5 bg-white border border-rose-100 text-rose-700 text-xs font-semibold rounded-full shadow-sm">
+                        {text.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {currentUser?.physicalNotes?.weakMuscles && (
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 shadow-sm">
+                  <h4 className="text-sm font-bold text-blue-800 mb-3 flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+                    使えていない筋肉
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {currentUser.physicalNotes.weakMuscles.split(/[,、・\n]/).filter(Boolean).map((text, i) => (
+                      <span key={i} className="px-3 py-1.5 bg-white border border-blue-100 text-blue-700 text-xs font-semibold rounded-full shadow-sm">
+                        {text.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -1,140 +1,224 @@
-import React, { useState } from 'react';
-import { User, WeightRecord } from '../../types';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { useAppStore } from '../../store/useStore';
-import { Trash2 } from 'lucide-react';
+import React, { useState } from "react";
+import { User, WeightRecord } from "../../types";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import { Button } from "../ui/Button";
+import { useAppStore } from "../../store/useStore";
+import { Trash2 } from "lucide-react";
 
-export default function MemberProfileModal({ member, onClose }: { member: User, onClose: () => void }) {
-  const { updateUserAdmin, trainings, addTraining, weights, addWeight, deleteWeight, adminChangePassword } = useAppStore();
+export default function MemberProfileModal({
+  member,
+  onClose,
+}: {
+  member: User;
+  onClose: () => void;
+}) {
+  const {
+    updateUserAdmin,
+    trainings,
+    addTraining,
+    weights,
+    addWeight,
+    deleteWeight,
+    adminChangePassword,
+  } = useAppStore();
   const [tickets, setTickets] = useState(member.tickets || 0);
-  const [contractPlan, setContractPlan] = useState(member.contractPlan || '');
-  const [editMemberId, setEditMemberId] = useState(member.memberId || '');
-  const [name, setName] = useState(member.name || '');
-  const [activeTab, setActiveTab] = useState<'profile' | 'body' | 'memo'>('profile');
-  const [newTraining, setNewTraining] = useState('');
+  const [contractPlan, setContractPlan] = useState(member.contractPlan || "");
+  const [editMemberId, setEditMemberId] = useState(member.memberId || "");
+  const [name, setName] = useState(member.name || "");
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "body" | "memo" | "assessment"
+  >("profile");
+  const [newTraining, setNewTraining] = useState("");
 
   // Body Composition State
-  const [bDate, setBDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [bWeight, setBWeight] = useState<number | ''>('');
-  const [bFat, setBFat] = useState<number | ''>('');
-  const [bSubFat, setBSubFat] = useState<number | ''>('');
-  const [bMuscle, setBMuscle] = useState<number | ''>('');
-  const [bVisceral, setBVisceral] = useState<number | ''>('');
-  const [bAge, setBAge] = useState<number | ''>('');
-  const [bBmr, setBBmr] = useState<number | ''>('');
+  const [bDate, setBDate] = useState<string>(
+    new Date().toISOString().split("T")[0],
+  );
+  const [bWeight, setBWeight] = useState<number | "">("");
+  const [bFat, setBFat] = useState<number | "">("");
+  const [bSubFat, setBSubFat] = useState<number | "">("");
+  const [bMuscle, setBMuscle] = useState<number | "">("");
+  const [bVisceral, setBVisceral] = useState<number | "">("");
+  const [bAge, setBAge] = useState<number | "">("");
+  const [bBmr, setBBmr] = useState<number | "">("");
 
-  const [newPassword, setNewPassword] = useState('');
-  const [passwordChangeStatus, setPasswordChangeStatus] = useState('');
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordChangeStatus, setPasswordChangeStatus] = useState("");
 
-  const memberTrainings = trainings.filter(t => t.userId === member.id).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const memberBodies = weights.filter(w => w.userId === member.id).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const [postureNotes, setPostureNotes] = useState(
+    member.physicalNotes?.posture || "",
+  );
+  const [tightMuscles, setTightMuscles] = useState(
+    member.physicalNotes?.tightMuscles || "",
+  );
+  const [weakMuscles, setWeakMuscles] = useState(
+    member.physicalNotes?.weakMuscles || "",
+  );
+
+  const memberTrainings = trainings
+    .filter((t) => t.userId === member.id)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const memberBodies = weights
+    .filter((w) => w.userId === member.id)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleSaveProfile = () => {
-    updateUserAdmin(member.id, { contractPlan, memberId: editMemberId, tickets, name });
+    updateUserAdmin(member.id, {
+      contractPlan,
+      memberId: editMemberId,
+      tickets,
+      name,
+    });
     onClose();
   };
 
+  const handleSaveAssessment = async () => {
+    try {
+      await updateUserAdmin(member.id, {
+        physicalNotes: {
+          posture: postureNotes,
+          tightMuscles: tightMuscles,
+          weakMuscles: weakMuscles,
+        },
+      });
+      alert("身体評価メモを保存しました");
+    } catch (err) {
+      alert("保存に失敗しました");
+    }
+  };
+
   const handleAddTraining = () => {
-    if(!newTraining.trim()) return;
+    if (!newTraining.trim()) return;
     addTraining({
       id: `t_${Date.now()}`,
       userId: member.id,
-      date: new Date().toISOString().split('T')[0],
-      menu: newTraining
+      date: new Date().toISOString().split("T")[0],
+      menu: newTraining,
     });
-    setNewTraining('');
+    setNewTraining("");
   };
 
   const handleAddBodyComp = () => {
-    if (bWeight === '') return;
+    if (bWeight === "") return;
     const bodyDate = bDate;
     addWeight({
       id: `w_${Date.now()}`,
       userId: member.id,
       date: bodyDate,
       weight: Number(bWeight),
-      bodyFatPercentage: bFat !== '' ? Number(bFat) : undefined,
-      subcutaneousFatPercentage: bSubFat !== '' ? Number(bSubFat) : undefined,
-      skeletalMuscle: bMuscle !== '' ? Number(bMuscle) : undefined,
-      visceralFatLevel: bVisceral !== '' ? Number(bVisceral) : undefined,
-      bodyAge: bAge !== '' ? Number(bAge) : undefined,
-      basalMetabolicRate: bBmr !== '' ? Number(bBmr) : undefined,
+      bodyFatPercentage: bFat !== "" ? Number(bFat) : undefined,
+      subcutaneousFatPercentage: bSubFat !== "" ? Number(bSubFat) : undefined,
+      skeletalMuscle: bMuscle !== "" ? Number(bMuscle) : undefined,
+      visceralFatLevel: bVisceral !== "" ? Number(bVisceral) : undefined,
+      bodyAge: bAge !== "" ? Number(bAge) : undefined,
+      basalMetabolicRate: bBmr !== "" ? Number(bBmr) : undefined,
     });
-    
+
     // update latest weight in user profile
     updateUserAdmin(member.id, { weight: Number(bWeight) });
 
-    setBWeight(''); setBFat(''); setBSubFat(''); setBMuscle(''); setBVisceral(''); setBAge(''); setBBmr('');
-    setBDate(new Date().toISOString().split('T')[0]);
+    setBWeight("");
+    setBFat("");
+    setBSubFat("");
+    setBMuscle("");
+    setBVisceral("");
+    setBAge("");
+    setBBmr("");
+    setBDate(new Date().toISOString().split("T")[0]);
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
       <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-white shadow-xl">
         <div className="flex justify-between items-center p-6 border-b border-gray-100 shrink-0">
-          <h2 className="text-xl font-bold text-gray-900">{member.name} 様のカルテ</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-900">×</button>
+          <h2 className="text-xl font-bold text-gray-900">
+            {member.name} 様のカルテ
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-900"
+          >
+            ×
+          </button>
         </div>
 
         <div className="flex border-b border-gray-100 px-6 space-x-6 shrink-0 overflow-x-auto">
-          <button 
-            className={`py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === 'profile' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
-            onClick={() => setActiveTab('profile')}
+          <button
+            className={`py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === "profile" ? "border-gray-900 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-900"}`}
+            onClick={() => setActiveTab("profile")}
           >
             プロフィール・プラン管理
           </button>
-          <button 
-            className={`py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === 'body' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
-            onClick={() => setActiveTab('body')}
+          <button
+            className={`py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === "body" ? "border-gray-900 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-900"}`}
+            onClick={() => setActiveTab("body")}
           >
             体組成データ入力
           </button>
-          <button 
-            className={`py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === 'memo' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
-            onClick={() => setActiveTab('memo')}
+          <button
+            className={`py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === "memo" ? "border-gray-900 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-900"}`}
+            onClick={() => setActiveTab("memo")}
           >
             メモ (管理者用)
+          </button>
+          <button
+            className={`py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === "assessment" ? "border-gray-900 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-900"}`}
+            onClick={() => setActiveTab("assessment")}
+          >
+            身体・姿勢評価
           </button>
         </div>
 
         <div className="p-6 flex-1 overflow-y-auto">
-          {activeTab === 'profile' && (
+          {activeTab === "profile" && (
             <div className="space-y-6 max-w-2xl">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">お名前</label>
-                  <input 
-                    type="text" 
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    お名前
+                  </label>
+                  <input
+                    type="text"
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="例: 山田太郎"
                     className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">ログインID</label>
-                  <div className="text-sm border border-gray-200 bg-gray-50 p-2.5 rounded-md text-gray-700">{member.loginId || member.email.replace(/(_\d+)?@goat-hp\.local/, '').replace('@goat-hp.local', '')}</div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    ログインID
+                  </label>
+                  <div className="text-sm border border-gray-200 bg-gray-50 p-2.5 rounded-md text-gray-700">
+                    {member.loginId ||
+                      member.email
+                        .replace(/(_\d+)?@goat-hp\.local/, "")
+                        .replace("@goat-hp.local", "")}
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">会員番号</label>
-                  <input 
-                    type="text" 
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    会員番号
+                  </label>
+                  <input
+                    type="text"
                     value={editMemberId}
-                    onChange={e => setEditMemberId(e.target.value)}
+                    onChange={(e) => setEditMemberId(e.target.value)}
                     placeholder="例: 1001"
                     className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">契約プラン</label>
-                  <input 
-                    type="text" 
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    契約プラン
+                  </label>
+                  <input
+                    type="text"
                     value={contractPlan}
-                    onChange={e => setContractPlan(e.target.value)}
+                    onChange={(e) => setContractPlan(e.target.value)}
                     placeholder="例: スタンダード月4プラン"
                     className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                   />
@@ -143,151 +227,307 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">残り回数 (チケット)</label>
-                  <input 
-                    type="number" 
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    残り回数 (チケット)
+                  </label>
+                  <input
+                    type="number"
                     value={tickets}
-                    onChange={e => setTickets(Number(e.target.value))}
+                    onChange={(e) => setTickets(Number(e.target.value))}
                     className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm font-mono"
                   />
                 </div>
               </div>
 
               <div className="pt-4 border-t border-gray-100">
-                <label className="text-sm font-medium text-gray-900 block mb-2">パスワード管理</label>
-                
+                <label className="text-sm font-medium text-gray-900 block mb-2">
+                  パスワード管理
+                </label>
+
                 <div className="mb-4 bg-gray-50 p-3 rounded-md border border-gray-200">
-                  <p className="text-sm font-medium text-gray-700 mb-1">現在のパスワード (システム記録)</p>
-                  <p className="font-mono text-gray-900">{member.rawPassword || '記録なし'}</p>
-                  <p className="text-[10px] text-gray-500 mt-1">※ユーザー自身で変更済みの場合は一致しない可能性があります。</p>
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    現在のパスワード (システム記録)
+                  </p>
+                  <p className="font-mono text-gray-900">
+                    {member.rawPassword || "記録なし"}
+                  </p>
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    ※ユーザー自身で変更済みの場合は一致しない可能性があります。
+                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-500">管理者によるパスワード強制変更</label>
+                  <label className="text-xs font-medium text-gray-500">
+                    管理者によるパスワード強制変更
+                  </label>
                   <div className="flex items-center space-x-2">
-                    <input 
-                      type="password" 
-                      placeholder="新しいパスワード(6文字以上)" 
+                    <input
+                      type="password"
+                      placeholder="新しいパスワード(6文字以上)"
                       value={newPassword}
-                      onChange={e => setNewPassword(e.target.value)}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       className="flex-1 bg-white border border-gray-200 rounded p-2 text-sm focus:border-gray-900 outline-none"
                     />
-                    <Button 
+                    <Button
                       variant="outline"
                       disabled={newPassword.length < 6 || !member.rawPassword}
                       onClick={async () => {
-                        setPasswordChangeStatus('変更中...');
+                        setPasswordChangeStatus("変更中...");
                         try {
                           if (member.rawPassword) {
-                            await adminChangePassword(member.email, member.rawPassword, newPassword, member.id);
-                            setPasswordChangeStatus('完了しました。');
-                            setNewPassword('');
-                            setTimeout(() => setPasswordChangeStatus(''), 3000);
+                            await adminChangePassword(
+                              member.email,
+                              member.rawPassword,
+                              newPassword,
+                              member.id,
+                            );
+                            setPasswordChangeStatus("完了しました。");
+                            setNewPassword("");
+                            setTimeout(() => setPasswordChangeStatus(""), 3000);
                           }
                         } catch (e) {
-                          setPasswordChangeStatus('失敗: 記録された元のパスワードが正しくない可能性があります。');
+                          setPasswordChangeStatus(
+                            "失敗: 記録された元のパスワードが正しくない可能性があります。",
+                          );
                         }
                       }}
-                    >変更</Button>
+                    >
+                      変更
+                    </Button>
                   </div>
-                  {passwordChangeStatus && <p className="text-xs text-blue-600 mt-1">{passwordChangeStatus}</p>}
-                  {!member.rawPassword && <p className="text-[10px] text-rose-500 mt-1">※記録された元パスワードがないため、ここでは変更できません。</p>}
+                  {passwordChangeStatus && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      {passwordChangeStatus}
+                    </p>
+                  )}
+                  {!member.rawPassword && (
+                    <p className="text-[10px] text-rose-500 mt-1">
+                      ※記録された元パスワードがないため、ここでは変更できません。
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="pt-6 flex justify-end space-x-3">
-                <Button variant="outline" onClick={onClose}>キャンセル</Button>
+                <Button variant="outline" onClick={onClose}>
+                  キャンセル
+                </Button>
                 <Button onClick={handleSaveProfile}>保存して閉じる</Button>
               </div>
             </div>
           )}
 
-          {activeTab === 'body' && (
+          {activeTab === "body" && (
             <div className="space-y-8">
               <Card className="bg-gray-50 border-gray-200 shadow-sm">
                 <CardHeader className="pb-2 border-b border-gray-200">
-                  <CardTitle className="text-sm text-gray-900">InBody / 体組成データ入力</CardTitle>
+                  <CardTitle className="text-sm text-gray-900">
+                    InBody / 体組成データ入力
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">測定日</label>
-                    <input type="date" value={bDate} onChange={e=>setBDate(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      測定日
+                    </label>
+                    <input
+                      type="date"
+                      value={bDate}
+                      onChange={(e) => setBDate(e.target.value)}
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">体重 (kg)</label>
-                    <input type="number" value={bWeight} onChange={e=>setBWeight(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      体重 (kg)
+                    </label>
+                    <input
+                      type="number"
+                      value={bWeight}
+                      onChange={(e) => setBWeight(Number(e.target.value) || "")}
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">体脂肪率 (%)</label>
-                    <input type="number" value={bFat} onChange={e=>setBFat(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      体脂肪率 (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={bFat}
+                      onChange={(e) => setBFat(Number(e.target.value) || "")}
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">皮下脂肪率 (%)</label>
-                    <input type="number" value={bSubFat} onChange={e=>setBSubFat(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      皮下脂肪率 (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={bSubFat}
+                      onChange={(e) => setBSubFat(Number(e.target.value) || "")}
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">骨格筋 (kg)</label>
-                    <input type="number" value={bMuscle} onChange={e=>setBMuscle(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      骨格筋 (kg)
+                    </label>
+                    <input
+                      type="number"
+                      value={bMuscle}
+                      onChange={(e) => setBMuscle(Number(e.target.value) || "")}
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">内臓脂肪レベル</label>
-                    <input type="number" value={bVisceral} onChange={e=>setBVisceral(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      内臓脂肪レベル
+                    </label>
+                    <input
+                      type="number"
+                      value={bVisceral}
+                      onChange={(e) =>
+                        setBVisceral(Number(e.target.value) || "")
+                      }
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">体年齢 (歳)</label>
-                    <input type="number" value={bAge} onChange={e=>setBAge(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      体年齢 (歳)
+                    </label>
+                    <input
+                      type="number"
+                      value={bAge}
+                      onChange={(e) => setBAge(Number(e.target.value) || "")}
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">基礎代謝量 (kcal)</label>
-                    <input type="number" value={bBmr} onChange={e=>setBBmr(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
+                    <label className="text-xs font-medium text-gray-500">
+                      基礎代謝量 (kcal)
+                    </label>
+                    <input
+                      type="number"
+                      value={bBmr}
+                      onChange={(e) => setBBmr(Number(e.target.value) || "")}
+                      className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm"
+                    />
                   </div>
                   <div className="flex items-end">
-                    <Button className="w-full h-8 text-xs font-bold" onClick={handleAddBodyComp} disabled={bWeight === ''}>＋ 記録を追加</Button>
+                    <Button
+                      className="w-full h-8 text-xs font-bold"
+                      onClick={handleAddBodyComp}
+                      disabled={bWeight === ""}
+                    >
+                      ＋ 記録を追加
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
 
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">体組成 履歴</h3>
+                <h3 className="text-sm font-bold text-gray-900 mb-3">
+                  体組成 履歴
+                </h3>
                 <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white shadow-sm">
                   <table className="w-full text-xs text-left">
                     <thead className="bg-gray-50 border-b border-gray-200 text-gray-600">
                       <tr>
-                        <th className="px-3 py-3 font-medium whitespace-nowrap">測定日</th>
-                        <th className="px-3 py-3 font-medium text-right">体重</th>
-                        <th className="px-3 py-3 font-medium text-right">体脂肪率</th>
-                        <th className="px-3 py-3 font-medium text-right">皮下脂肪</th>
-                        <th className="px-3 py-3 font-medium text-right">骨格筋 (kg)</th>
-                        <th className="px-3 py-3 font-medium text-right">内臓脂肪</th>
-                        <th className="px-3 py-3 font-medium text-right">体年齢</th>
-                        <th className="px-3 py-3 font-medium text-right">基礎代謝</th>
-                        <th className="px-3 py-3 font-medium text-center w-12">操作</th>
+                        <th className="px-3 py-3 font-medium whitespace-nowrap">
+                          測定日
+                        </th>
+                        <th className="px-3 py-3 font-medium text-right">
+                          体重
+                        </th>
+                        <th className="px-3 py-3 font-medium text-right">
+                          体脂肪率
+                        </th>
+                        <th className="px-3 py-3 font-medium text-right">
+                          皮下脂肪
+                        </th>
+                        <th className="px-3 py-3 font-medium text-right">
+                          骨格筋 (kg)
+                        </th>
+                        <th className="px-3 py-3 font-medium text-right">
+                          内臓脂肪
+                        </th>
+                        <th className="px-3 py-3 font-medium text-right">
+                          体年齢
+                        </th>
+                        <th className="px-3 py-3 font-medium text-right">
+                          基礎代謝
+                        </th>
+                        <th className="px-3 py-3 font-medium text-center w-12">
+                          操作
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 hover:divide-gray-100">
-                      {memberBodies.map(w => (
-                        <tr key={w.id} className="hover:bg-gray-50 transition-colors">
+                      {memberBodies.map((w) => (
+                        <tr
+                          key={w.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
                           <td className="px-3 py-3 text-gray-600">{w.date}</td>
-                          <td className="px-3 py-3 text-right bg-gray-50 font-bold text-gray-900">{Number(w.weight).toFixed(1)}kg</td>
-                          <td className="px-3 py-3 text-right font-medium text-gray-900">{w.bodyFatPercentage ? `${w.bodyFatPercentage}%` : '-'}</td>
-                          <td className="px-3 py-3 text-right text-gray-600">{w.subcutaneousFatPercentage ? `${w.subcutaneousFatPercentage}%` : '-'}</td>
-                          <td className="px-3 py-3 text-right text-gray-600">{w.skeletalMuscle ? `${w.skeletalMuscle}kg` : '-'}</td>
-                          <td className="px-3 py-3 text-right text-gray-600">{w.visceralFatLevel || '-'}</td>
-                          <td className="px-3 py-3 text-right text-gray-600">{w.bodyAge ? `${w.bodyAge}歳` : '-'}</td>
-                          <td className="px-3 py-3 text-right text-gray-600">{w.basalMetabolicRate ? `${w.basalMetabolicRate}kcal` : '-'}</td>
+                          <td className="px-3 py-3 text-right bg-gray-50 font-bold text-gray-900">
+                            {Number(w.weight).toFixed(1)}kg
+                          </td>
+                          <td className="px-3 py-3 text-right font-medium text-gray-900">
+                            {w.bodyFatPercentage
+                              ? `${w.bodyFatPercentage}%`
+                              : "-"}
+                          </td>
+                          <td className="px-3 py-3 text-right text-gray-600">
+                            {w.subcutaneousFatPercentage
+                              ? `${w.subcutaneousFatPercentage}%`
+                              : "-"}
+                          </td>
+                          <td className="px-3 py-3 text-right text-gray-600">
+                            {w.skeletalMuscle ? `${w.skeletalMuscle}kg` : "-"}
+                          </td>
+                          <td className="px-3 py-3 text-right text-gray-600">
+                            {w.visceralFatLevel || "-"}
+                          </td>
+                          <td className="px-3 py-3 text-right text-gray-600">
+                            {w.bodyAge ? `${w.bodyAge}歳` : "-"}
+                          </td>
+                          <td className="px-3 py-3 text-right text-gray-600">
+                            {w.basalMetabolicRate
+                              ? `${w.basalMetabolicRate}kcal`
+                              : "-"}
+                          </td>
                           <td className="px-3 py-3 text-center">
-                            <Button variant="ghost" size="icon" className="text-rose-500 opacity-50 hover:opacity-100 hover:bg-rose-50 -my-2" onClick={() => {
-                                if (confirm('この記録を削除してもよろしいですか？')) {
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-rose-500 opacity-50 hover:opacity-100 hover:bg-rose-50 -my-2"
+                              onClick={() => {
+                                if (
+                                  confirm(
+                                    "この記録を削除してもよろしいですか？",
+                                  )
+                                ) {
                                   deleteWeight(w.id);
                                 }
-                              }}>
+                              }}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </td>
                         </tr>
                       ))}
                       {memberBodies.length === 0 && (
-                        <tr><td colSpan={9} className="px-4 py-6 text-center text-gray-500">データがありません</td></tr>
+                        <tr>
+                          <td
+                            colSpan={9}
+                            className="px-4 py-6 text-center text-gray-500"
+                          >
+                            データがありません
+                          </td>
+                        </tr>
                       )}
                     </tbody>
                   </table>
@@ -296,37 +536,103 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
             </div>
           )}
 
-          {activeTab === 'memo' && (
+          {activeTab === "memo" && (
             <div className="space-y-6">
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                <h3 className="text-sm font-medium mb-3 text-gray-900">管理者用メモを追加</h3>
-                <textarea 
+                <h3 className="text-sm font-medium mb-3 text-gray-900">
+                  管理者用メモを追加
+                </h3>
+                <textarea
                   value={newTraining}
-                  onChange={e => setNewTraining(e.target.value)}
+                  onChange={(e) => setNewTraining(e.target.value)}
                   placeholder="ユーザーに関する管理メモを入力..."
                   className="w-full h-24 bg-white border border-gray-200 rounded-md p-3 text-sm text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none resize-none"
                 />
-                <Button className="mt-4 w-full md:w-auto md:px-8" onClick={handleAddTraining} disabled={!newTraining.trim()}>
+                <Button
+                  className="mt-4 w-full md:w-auto md:px-8"
+                  onClick={handleAddTraining}
+                  disabled={!newTraining.trim()}
+                >
                   メモを追加する
                 </Button>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium mb-3 text-gray-700">過去のメモ履歴</h3>
+                <h3 className="text-sm font-medium mb-3 text-gray-700">
+                  過去のメモ履歴
+                </h3>
                 {memberTrainings.length > 0 ? (
                   <div className="space-y-3">
-                    {memberTrainings.map(t => (
-                      <Card key={t.id} className="bg-white border-gray-200 shadow-sm">
+                    {memberTrainings.map((t) => (
+                      <Card
+                        key={t.id}
+                        className="bg-white border-gray-200 shadow-sm"
+                      >
                         <CardContent className="p-4 space-y-2">
-                          <div className="text-xs text-gray-900 font-bold tracking-wider">{t.date}</div>
-                          <div className="text-sm whitespace-pre-wrap text-gray-600 leading-relaxed">{t.menu}</div>
+                          <div className="text-xs text-gray-900 font-bold tracking-wider">
+                            {t.date}
+                          </div>
+                          <div className="text-sm whitespace-pre-wrap text-gray-600 leading-relaxed">
+                            {t.menu}
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
-                 </div>
+                  </div>
                 ) : (
-                  <div className="text-center py-8 border border-gray-200 rounded-xl border-dashed text-sm text-gray-500 bg-gray-50">履歴がありません</div>
+                  <div className="text-center py-8 border border-gray-200 rounded-xl border-dashed text-sm text-gray-500 bg-gray-50">
+                    履歴がありません
+                  </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "assessment" && (
+            <div className="space-y-6">
+              <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-5">
+                <div>
+                  <label className="text-sm font-medium text-gray-900 mb-2 flex items-center">
+                    姿勢・身体的特徴（メモ）
+                  </label>
+                  <textarea
+                    value={postureNotes}
+                    onChange={(e) => setPostureNotes(e.target.value)}
+                    placeholder="例: 骨盤前傾・腹部前突出・軽いフォワードヘッド・肩の内旋（巻き肩傾向）・足部の軽度外旋"
+                    className="w-full h-20 bg-white border border-gray-200 rounded-md p-3 text-sm text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none resize-none"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-rose-50/50 p-4 rounded-lg border border-rose-100">
+                    <label className="text-sm font-medium text-rose-800 mb-2 flex items-center">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 mr-2"></span>
+                      硬くなっている筋肉
+                    </label>
+                    <textarea
+                      value={tightMuscles}
+                      onChange={(e) => setTightMuscles(e.target.value)}
+                      placeholder="例: 腸腰筋、大腿直筋、脊柱起立筋、胸筋、僧帽筋上部"
+                      className="w-full h-24 bg-white border border-rose-200 rounded-md p-3 text-sm text-gray-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none resize-none"
+                    />
+                  </div>
+                  <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                    <label className="text-sm font-medium text-blue-800 mb-2 flex items-center">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+                      使えていない可能性が高い筋肉
+                    </label>
+                    <textarea
+                      value={weakMuscles}
+                      onChange={(e) => setWeakMuscles(e.target.value)}
+                      placeholder="例: 腹横筋、内腹斜筋、大臀筋、ハムストリング、前鋸筋、下部僧帽筋"
+                      className="w-full h-24 bg-white border border-blue-200 rounded-md p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-2">
+                  <Button onClick={handleSaveAssessment} className="px-8">
+                    評価を保存する
+                  </Button>
+                </div>
               </div>
             </div>
           )}

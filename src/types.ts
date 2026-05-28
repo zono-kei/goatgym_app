@@ -1,8 +1,14 @@
-export type Role = 'member' | 'admin';
+export type Role = "member" | "admin";
 
-export type Goal = 'maintain' | 'cut' | 'bulk';
-export type Gender = 'male' | 'female';
-export type ActivityLevel = 'low' | 'medium' | 'high';
+export type Goal = "maintain" | "cut" | "bulk";
+export type Gender = "male" | "female";
+export type ActivityLevel = "low" | "medium" | "high";
+
+export interface PhysicalNotes {
+  posture?: string;
+  tightMuscles?: string;
+  weakMuscles?: string;
+}
 
 export interface User {
   id: string;
@@ -21,6 +27,7 @@ export interface User {
   age?: number;
   activityLevel?: ActivityLevel;
   rawPassword?: string; // 管理者確認・変更用パスワード
+  physicalNotes?: PhysicalNotes; // 身体的特徴・姿勢メモ
 }
 
 export interface Reservation {
@@ -28,7 +35,7 @@ export interface Reservation {
   userId: string;
   date: string; // ISO date string
   time: string; // e.g. "10:00"
-  status: 'upcoming' | 'completed' | 'cancelled';
+  status: "upcoming" | "completed" | "cancelled";
   memo?: string;
 }
 
@@ -42,7 +49,7 @@ export interface MealRecord {
   protein: number;
   fat: number;
   carbs: number;
-  type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  type: "breakfast" | "lunch" | "dinner" | "snack";
 }
 
 export interface WeightRecord {
@@ -50,12 +57,12 @@ export interface WeightRecord {
   userId: string;
   date: string;
   weight: number;
-  bodyFatPercentage?: number;        // 体脂肪率 (%)
-  subcutaneousFatPercentage?: number;// 皮下脂肪率 (%)
-  skeletalMuscle?: number;           // 骨格筋
-  visceralFatLevel?: number;         // 内臓脂肪レベル
-  bodyAge?: number;                  // 体年齢
-  basalMetabolicRate?: number;       // 基礎代謝量 (kcal)
+  bodyFatPercentage?: number; // 体脂肪率 (%)
+  subcutaneousFatPercentage?: number; // 皮下脂肪率 (%)
+  skeletalMuscle?: number; // 骨格筋
+  visceralFatLevel?: number; // 内臓脂肪レベル
+  bodyAge?: number; // 体年齢
+  basalMetabolicRate?: number; // 基礎代謝量 (kcal)
 }
 
 export interface TrainingRecord {
