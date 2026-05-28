@@ -225,7 +225,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                     <input type="number" value={bSubFat} onChange={e=>setBSubFat(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-500">骨格筋</label>
+                    <label className="text-xs font-medium text-gray-500">骨格筋 (kg)</label>
                     <input type="number" value={bMuscle} onChange={e=>setBMuscle(Number(e.target.value) || '')} className="w-full bg-white border border-gray-200 rounded px-2 py-1.5 focus:border-gray-900 outline-none text-sm" />
                   </div>
                   <div className="space-y-1">
@@ -256,7 +256,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                         <th className="px-3 py-3 font-medium text-right">体重</th>
                         <th className="px-3 py-3 font-medium text-right">体脂肪率</th>
                         <th className="px-3 py-3 font-medium text-right">皮下脂肪</th>
-                        <th className="px-3 py-3 font-medium text-right">骨格筋</th>
+                        <th className="px-3 py-3 font-medium text-right">骨格筋 (kg)</th>
                         <th className="px-3 py-3 font-medium text-right">内臓脂肪</th>
                         <th className="px-3 py-3 font-medium text-right">体年齢</th>
                         <th className="px-3 py-3 font-medium text-right">基礎代謝</th>
@@ -269,7 +269,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                           <td className="px-3 py-3 text-right bg-gray-50 font-bold text-gray-900">{Number(w.weight).toFixed(1)}kg</td>
                           <td className="px-3 py-3 text-right font-medium text-gray-900">{w.bodyFatPercentage ? `${w.bodyFatPercentage}%` : '-'}</td>
                           <td className="px-3 py-3 text-right text-gray-600">{w.subcutaneousFatPercentage ? `${w.subcutaneousFatPercentage}%` : '-'}</td>
-                          <td className="px-3 py-3 text-right text-gray-600">{w.skeletalMuscle ? `${w.skeletalMuscle}` : '-'}</td>
+                          <td className="px-3 py-3 text-right text-gray-600">{w.skeletalMuscle ? `${w.skeletalMuscle}kg` : '-'}</td>
                           <td className="px-3 py-3 text-right text-gray-600">{w.visceralFatLevel || '-'}</td>
                           <td className="px-3 py-3 text-right text-gray-600">{w.bodyAge ? `${w.bodyAge}歳` : '-'}</td>
                           <td className="px-3 py-3 text-right text-gray-600">{w.basalMetabolicRate ? `${w.basalMetabolicRate}kcal` : '-'}</td>
