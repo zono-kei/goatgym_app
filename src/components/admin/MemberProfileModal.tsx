@@ -3,9 +3,10 @@ import { User, WeightRecord } from '../../types';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useAppStore } from '../../store/useStore';
+import { Trash2 } from 'lucide-react';
 
 export default function MemberProfileModal({ member, onClose }: { member: User, onClose: () => void }) {
-  const { updateUserAdmin, trainings, addTraining, weights, addWeight, adminChangePassword } = useAppStore();
+  const { updateUserAdmin, trainings, addTraining, weights, addWeight, deleteWeight, adminChangePassword } = useAppStore();
   const [tickets, setTickets] = useState(member.tickets || 0);
   const [contractPlan, setContractPlan] = useState(member.contractPlan || '');
   const [editMemberId, setEditMemberId] = useState(member.memberId || '');
@@ -260,6 +261,7 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                         <th className="px-3 py-3 font-medium text-right">内臓脂肪</th>
                         <th className="px-3 py-3 font-medium text-right">体年齢</th>
                         <th className="px-3 py-3 font-medium text-right">基礎代謝</th>
+                        <th className="px-3 py-3 font-medium text-center w-12">操作</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 hover:divide-gray-100">
@@ -273,10 +275,19 @@ export default function MemberProfileModal({ member, onClose }: { member: User, 
                           <td className="px-3 py-3 text-right text-gray-600">{w.visceralFatLevel || '-'}</td>
                           <td className="px-3 py-3 text-right text-gray-600">{w.bodyAge ? `${w.bodyAge}歳` : '-'}</td>
                           <td className="px-3 py-3 text-right text-gray-600">{w.basalMetabolicRate ? `${w.basalMetabolicRate}kcal` : '-'}</td>
+                          <td className="px-3 py-3 text-center">
+                            <Button variant="ghost" size="icon" className="text-rose-500 opacity-50 hover:opacity-100 hover:bg-rose-50 -my-2" onClick={() => {
+                                if (confirm('この記録を削除してもよろしいですか？')) {
+                                  deleteWeight(w.id);
+                                }
+                              }}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                       {memberBodies.length === 0 && (
-                        <tr><td colSpan={8} className="px-4 py-6 text-center text-gray-500">データがありません</td></tr>
+                        <tr><td colSpan={9} className="px-4 py-6 text-center text-gray-500">データがありません</td></tr>
                       )}
                     </tbody>
                   </table>

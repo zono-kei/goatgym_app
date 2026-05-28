@@ -32,6 +32,7 @@ interface AppContextType extends AppState {
   addReservation: (res: Reservation) => Promise<void>;
   addMeal: (meal: MealRecord) => Promise<void>;
   addWeight: (weight: WeightRecord) => Promise<void>;
+  deleteWeight: (id: string) => Promise<void>;
   addTraining: (training: TrainingRecord) => Promise<void>;
   addCustomFood: (food: Food) => Promise<void>;
 }
@@ -251,6 +252,10 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
     await setDoc(doc(db, 'weights', weight.id), weight);
   };
 
+  const deleteWeight = async (id: string) => {
+    await deleteDoc(doc(db, 'weights', id));
+  };
+
   const addTraining = async (training: TrainingRecord) => {
     await setDoc(doc(db, 'trainings', training.id), training);
   };
@@ -268,7 +273,7 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   return (
     <AppContext.Provider value={{
       ...state, login, loginWithEmail, signupWithEmail, resetPassword, changePassword, logout, updateUser, updateUserAdmin, addUser, adminCreateUser, adminChangePassword, deleteUser,
-      addReservation, addMeal, addWeight, addTraining, addCustomFood
+      addReservation, addMeal, addWeight, deleteWeight, addTraining, addCustomFood
     }}>
       {children}
     </AppContext.Provider>
