@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Reservation, MealRecord, WeightRecord, TrainingRecord, Food } from '../types';
 // import secondaryAuth from firebase
 import { db, auth, secondaryAuth, handleFirestoreError } from '../firebase';
-import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updatePassword } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updatePassword, deleteUser as deleteFirebaseAuthUser } from 'firebase/auth';
 import { collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch } from 'firebase/firestore';
 
 interface AppState {
@@ -187,8 +187,22 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   };
 
   const deleteUser = async (id: string) => {
-    // 🔥 Firebase Authentication上のユーザー削除はAdmin SDKが必要なため、
-    // まずFirestoreの関連データをすべて削除します。
+    try {
+      const userDoc = await getDoc(doc(db, 'users', id));
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        if (userData.email && userData.rawPassword) {
+          const cred = await signInWithEmailAndPassword(secondaryAuth, userData.email, userData.rawPassword);
+          if (cred.user) {
+            await deleteFirebaseAuthUser(cred.user);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete Auth User:", err);
+    }
+    
+    // 🔥 Firestoreの関連データをすべて削除します。
     await deleteDoc(doc(db, 'users', id));
 
     const collectionsToDelete = ['meals', 'weights', 'trainings', 'reservations', 'customFoods'];
