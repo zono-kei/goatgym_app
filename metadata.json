@@ -1,6 +1,6 @@
 {
-  "name": "GOAT Personal Gym",
-  "description": "Personal gym management app for members and admins.",
+  "name": "GOAT会員アプリ",
+  "description": "GOATパーソナルジムの会員専用管理アプリです。",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
