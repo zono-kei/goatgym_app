@@ -56,6 +56,7 @@ service cloud.firestore {
                       (request.auth.uid == userId && existing().email == 'b2181199@gmail.com' && incoming().role == 'admin' && incoming().email == 'b2181199@gmail.com') ||
                       (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'weight', 'goal', 'targetCalories', 'gender', 'height', 'age', 'activityLevel', 'updatedAt', 'rawPassword']) && incoming().role == existing().role && incoming().email == existing().email)
                     );
+      allow delete: if isAdmin();
     }
 
     function isValidReservation(data) {

@@ -191,7 +191,7 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
     // まずFirestoreの関連データをすべて削除します。
     await deleteDoc(doc(db, 'users', id));
 
-    const collectionsToDelete = ['meals', 'weights', 'trainings', 'reservations'];
+    const collectionsToDelete = ['meals', 'weights', 'trainings', 'reservations', 'customFoods'];
     
     for (const coll of collectionsToDelete) {
       const q = query(collection(db, coll), where('userId', '==', id));
