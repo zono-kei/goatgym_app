@@ -186,5 +186,11 @@ service cloud.firestore {
                     );
       allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
     }
+
+    match /authMappings/{memberId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }
+

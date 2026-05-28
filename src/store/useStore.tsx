@@ -167,11 +167,29 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   };
 
   const adminCreateUser = async (email: string, pass: string, user: Omit<User, 'id'>) => {
-    // Create in auth using secondary app so we don't log out the admin
-    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-    const uid = cred.user.uid;
+    let finalEmail = email;
+    let uid = '';
+    try {
+      // Create in auth using secondary app so we don't log out the admin
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+      uid = cred.user.uid;
+    } catch (err: any) {
+      if (err.code === 'auth/email-already-in-use' && email.includes('@goat-hp.local')) {
+        const baseId = user.memberId || email.split('@')[0];
+        const newEmail = `${baseId}_${Date.now()}@goat-hp.local`;
+        const cred = await createUserWithEmailAndPassword(secondaryAuth, newEmail, pass);
+        uid = cred.user.uid;
+        finalEmail = newEmail;
+        await setDoc(doc(db, 'authMappings', baseId), { email: newEmail });
+      } else if (err.code === 'auth/email-already-in-use') {
+         throw new Error("指定されたメールアドレスは既にシステムに存在します。別のメールアドレスをご利用ください。");
+      } else {
+        throw err;
+      }
+    }
+    
     // Now create document
-    const fullUser: User = { ...user, id: uid, rawPassword: pass };
+    const fullUser: User = { ...user, id: uid, rawPassword: pass, email: finalEmail };
     await setDoc(doc(db, 'users', uid), fullUser);
     // Sign out of secondary auth so it doesn't linger
     await signOut(secondaryAuth);

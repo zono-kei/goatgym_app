@@ -3,6 +3,8 @@ import { useAppStore } from '../../store/useStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import goatLogo from '../ui/goatlogo.png';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 export default function LoginView() {
   const { login, loginWithEmail, resetPassword } = useAppStore();
@@ -27,7 +29,17 @@ export default function LoginView() {
     setError('');
     setMessage('');
     try {
-      const formattedEmail = loginId.includes('@') ? loginId : `${loginId}@goat-hp.local`;
+      let formattedEmail = loginId.includes('@') ? loginId : `${loginId}@goat-hp.local`;
+      
+      try {
+        const mappingDoc = await getDoc(doc(db, 'authMappings', loginId));
+        if (mappingDoc.exists()) {
+          formattedEmail = mappingDoc.data().email;
+        }
+      } catch (err) {
+        // Fallback to default if not permitted or not found
+      }
+
       if (isResetMode) {
         await resetPassword(formattedEmail);
         setMessage('パスワード再設定のメールを送信しました。受信トレイをご確認ください。');
