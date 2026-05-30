@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { TrendingDown } from "lucide-react";
 import goatLogo from "../ui/goatlogo.png";
+import zonoLogo from "../../zono.png";
 
 type ChartType =
   | "weight"
@@ -274,11 +275,17 @@ export default function MemberDashboard() {
                   姿勢の特徴
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {currentUser.physicalNotes.posture.split(/[,、・\n]/).filter(Boolean).map((text, i) => (
-                    <span key={i} className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-full shadow-sm">
-                      {text.trim()}
-                    </span>
-                  ))}
+                  {currentUser.physicalNotes.posture
+                    .split(/[,、・\n]/)
+                    .filter(Boolean)
+                    .map((text, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-full shadow-sm"
+                      >
+                        {text.trim()}
+                      </span>
+                    ))}
                 </div>
               </div>
             )}
@@ -291,11 +298,17 @@ export default function MemberDashboard() {
                     硬くなっている筋肉
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {currentUser.physicalNotes.tightMuscles.split(/[,、・\n]/).filter(Boolean).map((text, i) => (
-                      <span key={i} className="px-3 py-1.5 bg-white border border-rose-100 text-rose-700 text-xs font-semibold rounded-full shadow-sm">
-                        {text.trim()}
-                      </span>
-                    ))}
+                    {currentUser.physicalNotes.tightMuscles
+                      .split(/[,、・\n]/)
+                      .filter(Boolean)
+                      .map((text, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 bg-white border border-rose-100 text-rose-700 text-xs font-semibold rounded-full shadow-sm"
+                        >
+                          {text.trim()}
+                        </span>
+                      ))}
                   </div>
                 </div>
               )}
@@ -306,11 +319,17 @@ export default function MemberDashboard() {
                     使えていない筋肉
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {currentUser.physicalNotes.weakMuscles.split(/[,、・\n]/).filter(Boolean).map((text, i) => (
-                      <span key={i} className="px-3 py-1.5 bg-white border border-blue-100 text-blue-700 text-xs font-semibold rounded-full shadow-sm">
-                        {text.trim()}
-                      </span>
-                    ))}
+                    {currentUser.physicalNotes.weakMuscles
+                      .split(/[,、・\n]/)
+                      .filter(Boolean)
+                      .map((text, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 bg-white border border-blue-100 text-blue-700 text-xs font-semibold rounded-full shadow-sm"
+                        >
+                          {text.trim()}
+                        </span>
+                      ))}
                   </div>
                 </div>
               )}
@@ -318,6 +337,23 @@ export default function MemberDashboard() {
           </CardContent>
         </Card>
       )}
+
+      <div className="flex flex-col items-center justify-center mt-12 mb-8 opacity-90 transition-opacity duration-500">
+        <div className="relative mb-3 flex flex-col items-center">
+          <div className="bg-white text-gray-800 text-sm py-2 px-4 rounded-full shadow-lg border border-gray-100 font-bold z-10 whitespace-nowrap mb-2 relative animate-bounce-slow">
+            今日も頑張ろう！💪
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-b border-r border-gray-100 rotate-45"></div>
+          </div>
+          <img
+            src={zonoLogo}
+            alt="Zono"
+            className="h-24 md:h-32 object-contain drop-shadow-xl"
+          />
+        </div>
+        <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mt-2 bg-white/80 px-4 py-1 rounded-full">
+          Powered By Zono
+        </p>
+      </div>
     </div>
   );
 }

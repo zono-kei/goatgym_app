@@ -7,6 +7,7 @@ import { calculatePFC } from '../../utils/pfc';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import ProfileSettingsModal from './ProfileSettingsModal';
 import DietAdvice from './DietAdvice';
+import zonoLogo from '../../zono.png';
 
 export default function MealManagementView() {
   const { currentUser, meals, addMeal, customFoods, addCustomFood } = useAppStore();
@@ -273,6 +274,23 @@ export default function MealManagementView() {
           </Card>
         </div>
       )}
+
+      <div className="flex flex-col items-center justify-center mt-12 mb-8 opacity-90 transition-opacity duration-500">
+        <div className="relative mb-3 flex flex-col items-center">
+          <div className="bg-white text-gray-800 text-sm py-2 px-4 rounded-full shadow-lg border border-gray-100 font-bold z-10 whitespace-nowrap mb-2 relative animate-bounce-slow">
+            食事もしっかり管理しよう！🥗
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-b border-r border-gray-100 rotate-45"></div>
+          </div>
+          <img
+            src={zonoLogo}
+            alt="Zono"
+            className="h-24 md:h-32 object-contain drop-shadow-xl"
+          />
+        </div>
+        <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mt-2 bg-white/80 px-4 py-1 rounded-full">
+          Powered By Zono
+        </p>
+      </div>
     </div>
   );
 }
